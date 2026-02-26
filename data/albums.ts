@@ -59,7 +59,7 @@ export const albums: Album[] = [
         description: "Stunning birthday portraits for Rashmi capturing her personality and elegance.",
         images: imgs("Birthday/f2 Rashmi 22", [
             "1.webp", "3.webp", "4.webp", "5.webp", "6.webp", "7.webp",
-            "8.webp", "9.webp", "10.webp", "11.webp", "1"13.webp", "14.webp", "15.webp",
+            "8.webp", "9.webp", "10.webp", "11.webp", "12.webp", "13.webp", "14.webp", "15.webp",
         ]),
     },
 
@@ -115,11 +115,11 @@ export const albums: Album[] = [
         description: "Professional event coverage of the Sagies Campu AMS Annual General Meeting.",
         images: imgs("Event/f5 Sagies Campu AMS AGM", [
             "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg",
-            "IMG_8940.jpg", "IMG_8965.jpg", "IMG_897"IMG_903"IMG_9062.jpg", "IMG_9092.jpg", "IMG_9097.jpg", "IMG_9102.jpg",
+            "IMG_8940.jpg", "IMG_8965.jpg", "IMG_8970.jpg", "IMG_9030.jpg", "IMG_9062.jpg", "IMG_9092.jpg", "IMG_9097.jpg", "IMG_9102.jpg",
             "IMG_9110.jpg", "IMG_9133.jpg", "IMG_9158.jpg", "IMG_9160.jpg",
             "IMG_9173.jpg", "IMG_9178.jpg", "IMG_9180.jpg", "IMG_9189.jpg",
-            "IMG_9204.jpg", "IMG_9208.jpg", "IMG_921"IMG_9213.jpg",
-            "IMG_9218.jpg", "IMG_9219.jpg", "IMG_9227.jpg", "IMG_923"IMG_9235.jpg", "IMG_9258.jpg", "IMG_9285.jpg", "IMG_9286.jpg",
+            "IMG_9204.jpg", "IMG_9208.jpg", "IMG_9210.jpg", "IMG_9213.jpg",
+            "IMG_9218.jpg", "IMG_9219.jpg", "IMG_9227.jpg", "IMG_9230.jpg", "IMG_9235.jpg", "IMG_9258.jpg", "IMG_9285.jpg", "IMG_9286.jpg",
             "IMG_9293.jpg", "IMG_9309.jpg",
         ]),
     },
@@ -339,7 +339,7 @@ export const albums: Album[] = [
             "DSC09778.webp",
             "DSC09782.webp",
             "DSC09783.webp",
-            ]),
+        ]),
     },
 
     // ── BIRTHDAY (remaining) ──────────────────────────────────────────────────
@@ -353,7 +353,7 @@ export const albums: Album[] = [
         description: "An elegant birthday portrait session for Olu, filled with warmth and radiance.",
         images: imgs("Birthday/Olu", [
             "1.webp", "3.webp", "4.webp", "5.webp", "6.webp", "7.webp",
-            "8.webp", "9.webp", "10.webp", "11.webp", "1"13.webp", "14.webp",
+            "8.webp", "9.webp", "10.webp", "11.webp", "12.webp", "13.webp", "14.webp",
             "15.webp", "16.webp", "17.webp", "18.webp", "19.webp", "20.webp",
         ]),
     },
@@ -383,7 +383,8 @@ export const albums: Album[] = [
         description: "A joyful graduation shoot for Hansi — celebrating a new chapter.",
         images: imgs("Graduation/Hansi", [
             "2.webp", "3.webp", "4.webp", "5.webp", "6.webp", "7.webp",
-            "8.webp", "9.webp", "10.webp", "1"11-2.webp", "12.webp", "13.webp",
-            "DSC01266.webp", "Untitled-]),
+            "8.webp", "9.webp", "10.webp", "11-2.webp", "12.webp", "13.webp",
+            "DSC01266.webp", "Untitled-1.webp",
+        ]),
     },
 ];
