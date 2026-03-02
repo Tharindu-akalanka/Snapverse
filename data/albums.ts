@@ -134,7 +134,7 @@ export const albums: Album[] = [
         coverImage: `${BASE}/Birthday/f6 Dulmi 22/cover.webp`,
         description: "Beautiful birthday portraits celebrating Dulmi's special day.",
         images: imgs("Birthday/f6 Dulmi 22", [
-            "1.webp", "2.webp", "3 (2).webp", "4 (2).webp", "4.webp",
+            "1.webp", "2.webp", "4.webp", "4 (2).webp",
             "11 (2).webp", "12.webp", "13.webp", "16.webp", "17.webp", "19.webp",
         ]),
     },
