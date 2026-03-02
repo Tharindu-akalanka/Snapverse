@@ -34,7 +34,7 @@ export default function AboutPage() {
                 {/* Hero Section */}
                 <Section className="pb-16 pt-32 lg:pt-40">
                     <Container>
-                        <div className="grid gap-16 lg:grid-cols-2">
+                        <div className="flex flex-col-reverse lg:grid gap-12 lg:gap-16 lg:grid-cols-2">
                             <div className="flex flex-col justify-center">
                                 <div className="mb-6 inline-flex w-fit items-center border border-white px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
                                     Our Story
@@ -63,16 +63,29 @@ export default function AboutPage() {
                                     </Link>
                                 </div>
                             </div>
-                            <div className="relative aspect-[3/4] overflow-hidden bg-[#1A1A1A]">
+
+                            <div className="relative aspect-[4/5] lg:aspect-[3/4] w-full overflow-hidden bg-[#0B0B0B] group">
                                 <Image
-                                    src="/Images/Soucre images/Wedding/Rangana & Nayani/cover.webp"
+                                    src="/Images/photographer.jpeg"
                                     alt="Photographer at work"
                                     fill
                                     className="object-cover grayscale hover:grayscale-0 transition-all duration-700"
                                     sizes="(max-width: 1024px) 100vw, 50vw"
                                     priority
                                 />
-                                <div className="absolute inset-0 bg-black/20" />
+                                {/* Overlay to blend it nicely into the dark bg on mobile */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B] via-transparent to-transparent opacity-80 lg:opacity-0" />
+                                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
+
+                                {/* Photographer Label */}
+                                <div className="absolute bottom-6 left-6 
+                                              bg-[#0B0B0B]/80 backdrop-blur-md border border-white/10 
+                                              px-4 py-2 flex items-center gap-2 transform transition-transform duration-500 group-hover:-translate-y-1">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse" />
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                                        Main Photographer
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </Container>

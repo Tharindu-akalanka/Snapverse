@@ -11,12 +11,22 @@ export function AboutSection() {
                     {/* Image side */}
                     <div className="relative aspect-[4/5] w-full overflow-hidden group">
                         <Image
-                            src="/Images/Home scroll/DSC02517.jpg"
+                            src="/Images/photographer.jpeg"
                             alt="SnapVerse Photographer in action"
                             fill
                             className="object-cover transition-transform duration-1000 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
+
+                        {/* Photographer Label */}
+                        <div className="absolute bottom-6 left-6 
+                                      bg-[#0B0B0B]/80 backdrop-blur-md border border-white/10 
+                                      px-4 py-2 flex items-center gap-2 transform transition-transform duration-500 group-hover:-translate-y-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C] animate-pulse" />
+                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                                Main Photographer
+                            </span>
+                        </div>
                     </div>
 
                     {/* Text side */}
