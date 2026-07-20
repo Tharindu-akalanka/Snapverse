@@ -32,12 +32,21 @@ function PortfolioContent() {
             }
         };
         loadAlbums();
+
+        const handleAutoSynced = () => {
+            loadAlbums();
+        };
+
+        window.addEventListener("snapverse:auto-synced", handleAutoSynced);
+        return () => window.removeEventListener("snapverse:auto-synced", handleAutoSynced);
     }, []);
+
+    const publicAlbums = allAlbums.filter((album) => album.visibility !== "unlisted");
 
     const filteredAlbums =
         activeCategory === "All"
-            ? allAlbums
-            : allAlbums.filter((album) => album.category === activeCategory);
+            ? publicAlbums
+            : publicAlbums.filter((album) => album.category === activeCategory);
 
 
     return (

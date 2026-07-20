@@ -13,10 +13,11 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { 
     Trash2, Plus, UploadCloud, Check, LogOut, Eye, 
-    BookOpen, Calendar, MapPin, Image as ImageIcon, AlertTriangle, Loader2, X
+    BookOpen, Calendar, MapPin, Image as ImageIcon, AlertTriangle, Loader2, X,
+    Copy, Link as LinkIcon, Lock, Globe, Folder
 } from "lucide-react";
 import { Album, Image as AlbumImage, albums as staticAlbums } from "@/data/albums";
-import { getDbAlbums, saveDbAlbum, deleteDbAlbum } from "@/lib/db-albums";
+import { getDbAlbums, saveDbAlbum, deleteDbAlbum, updateDbAlbumVisibility } from "@/lib/db-albums";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage } from "@/lib/firebase";
 
@@ -67,7 +68,11 @@ export default function AdminPage() {
     const [location, setLocation] = useState("");
     const [year, setYear] = useState(new Date().getFullYear().toString());
     const [description, setDescription] = useState("");
+    const [visibility, setVisibility] = useState<"public" | "unlisted">("public");
     
+    // Copy Link Feedback
+    const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
     // Cover Image State
     const [coverType, setCoverType] = useState<"upload" | "url">("upload");
     const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -81,6 +86,12 @@ export default function AdminPage() {
     const [formSuccess, setFormSuccess] = useState("");
     const [saving, setSaving] = useState(false);
 
+    // Google Drive Importer State
+    const [gdriveUrl, setGdriveUrl] = useState("");
+    const [gdriveLoading, setGdriveLoading] = useState(false);
+    const [gdriveError, setGdriveError] = useState("");
+    const [gdriveSuccess, setGdriveSuccess] = useState("");
+
     // Facebook Importer State
     const [fbUrl, setFbUrl] = useState("");
     const [fbLoading, setFbLoading] = useState(false);
@@ -89,6 +100,73 @@ export default function AdminPage() {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
+
+    // Toggle Shoot Visibility Handler
+    const handleToggleVisibility = async (albumSlug: string, currentVisibility?: "public" | "unlisted") => {
+        const newVis = currentVisibility === "unlisted" ? "public" : "unlisted";
+        try {
+            await updateDbAlbumVisibility(albumSlug, newVis);
+            setDbAlbums(prev => prev.map(a => a.slug === albumSlug ? { ...a, visibility: newVis } : a));
+        } catch (err) {
+            console.error("Failed to toggle visibility:", err);
+            alert("Failed to update visibility.");
+        }
+    };
+
+    // Handle Google Drive Folder Extraction
+    const handleFetchGDriveFolder = async () => {
+        if (!gdriveUrl.trim()) {
+            setGdriveError("Please enter a Google Drive folder URL or ID.");
+            return;
+        }
+        setGdriveError("");
+        setGdriveSuccess("");
+        setGdriveLoading(true);
+
+        try {
+            const response = await fetch("/api/fetch-gdrive-images", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: gdriveUrl.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || "Failed to extract photos from Google Drive folder.");
+            }
+
+            // Auto-fill title if currently empty
+            if (!title && data.title) {
+                setTitle(data.title);
+            }
+
+            // Auto-set cover image if coverUrl is currently empty
+            if (!coverUrl && data.images.length > 0) {
+                setCoverType("url");
+                setCoverUrl(data.images[0]);
+            }
+
+            // Append photos to externalUrlsText
+            const newUrls = data.images.join("\n");
+            setExternalUrlsText((prev) => (prev ? prev + "\n" + newUrls : newUrls));
+
+            setGdriveSuccess(`Extracted ${data.count} high-resolution photo(s) from Google Drive folder!`);
+        } catch (err: any) {
+            console.error("Google Drive import error:", err);
+            setGdriveError(err.message || "Could not fetch photos from Google Drive folder.");
+        } finally {
+            setGdriveLoading(false);
+        }
+    };
+
+    // Copy direct shoot link to clipboard
+    const handleCopyDirectLink = (albumSlug: string) => {
+        const fullUrl = `${window.location.origin}/portfolio/${albumSlug}`;
+        navigator.clipboard.writeText(fullUrl);
+        setCopiedSlug(albumSlug);
+        setTimeout(() => setCopiedSlug(null), 2500);
+    };
 
     // Handle Facebook Post Extraction
     const handleFetchFacebookPost = async () => {
@@ -443,6 +521,7 @@ export default function AdminPage() {
                 coverImage: finalCoverUrl,
                 description: description.trim() || `Visual stories captured from the ${title} shoot.`,
                 images: imagesList,
+                visibility: visibility,
             };
 
             // 6. Save to Firestore
@@ -457,11 +536,16 @@ export default function AdminPage() {
             setLocation("");
             setYear(new Date().getFullYear().toString());
             setDescription("");
+            setVisibility("public");
             setCoverFile(null);
             setCoverUrl("");
             setCoverUploadProgress(-1);
             setUploadingImages([]);
             setExternalUrlsText("");
+            setGdriveUrl("");
+            setGdriveSuccess("");
+            setFbUrl("");
+            setFbSuccess("");
             
             if (coverInputRef.current) coverInputRef.current.value = "";
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -627,9 +711,15 @@ export default function AdminPage() {
                     {/* Header */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 border-b border-white/5 pb-8">
                         <div>
-                            <h1 className="font-sans text-4xl font-bold uppercase tracking-tight text-white">
-                                Dashboard
-                            </h1>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <h1 className="font-sans text-4xl font-bold uppercase tracking-tight text-white">
+                                    Dashboard
+                                </h1>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold uppercase tracking-wider shadow-sm animate-pulse">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                                    Drive Auto-Sync Active
+                                </span>
+                            </div>
                             <p className="mt-2 text-xs text-[#A1A1A1] tracking-wider uppercase">
                                 Logged in as: <span className="text-white font-semibold">{user.email}</span>
                             </p>
@@ -742,8 +832,28 @@ export default function AdminPage() {
                                                     alt={album.title} 
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 />
-                                                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-[#C9A84C]">
-                                                    {album.category}
+                                                <div className="absolute top-4 left-4 flex gap-2">
+                                                    <span className="bg-black/70 backdrop-blur-md border border-white/10 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-[#C9A84C]">
+                                                        {album.category}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleToggleVisibility(album.slug, album.visibility)}
+                                                        className="outline-none focus:ring-1 focus:ring-white rounded cursor-pointer transition-transform active:scale-95"
+                                                        title="Click to toggle Public / Link Only (Unlisted)"
+                                                    >
+                                                        {album.visibility === "unlisted" ? (
+                                                            <span className="bg-purple-950/80 hover:bg-purple-900/90 backdrop-blur-md border border-purple-500/40 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1">
+                                                                <Lock className="h-3 w-3" />
+                                                                Link Only
+                                                            </span>
+                                                        ) : (
+                                                            <span className="bg-emerald-950/80 hover:bg-emerald-900/90 backdrop-blur-md border border-emerald-500/40 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1">
+                                                                <Globe className="h-3 w-3" />
+                                                                Public
+                                                            </span>
+                                                        )}
+                                                    </button>
                                                 </div>
                                             </div>
 
@@ -770,20 +880,39 @@ export default function AdminPage() {
                                                     </div>
                                                 </div>
 
-                                                <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
+                                                <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-4 text-[10px] font-bold uppercase tracking-widest">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleCopyDirectLink(album.slug)}
+                                                        className="text-[#A1A1A1] hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+                                                        title="Copy Direct Shoot Link"
+                                                    >
+                                                        {copiedSlug === album.slug ? (
+                                                            <>
+                                                                <Check className="h-3.5 w-3.5 text-emerald-400" />
+                                                                <span className="text-emerald-400">Copied!</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Copy className="h-3.5 w-3.5" />
+                                                                <span>Copy Link</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+
                                                     <a 
                                                         href={`/portfolio/${album.slug}`} 
                                                         target="_blank" 
                                                         rel="noreferrer"
-                                                        className="text-[10px] font-bold uppercase tracking-widest text-[#C9A84C] hover:text-[#e2c47a] transition-colors flex items-center gap-1.5"
+                                                        className="text-[#C9A84C] hover:text-[#e2c47a] transition-colors flex items-center gap-1.5"
                                                     >
                                                         <Eye className="h-3.5 w-3.5" />
-                                                        View Page
+                                                        View
                                                     </a>
                                                     
                                                     <button
                                                         onClick={() => handleDeleteAlbum(album.slug)}
-                                                        className="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors flex items-center gap-1.5"
+                                                        className="text-red-500 hover:text-red-400 transition-colors flex items-center gap-1.5 cursor-pointer"
                                                     >
                                                         <Trash2 className="h-3.5 w-3.5" />
                                                         Delete
@@ -820,6 +949,56 @@ export default function AdminPage() {
                                         <span>{formSuccess}</span>
                                     </div>
                                 )}
+
+                                {/* Google Drive Importer Quick Tool */}
+                                <div className="bg-[#1C1C1C] border border-[#C9A84C]/40 rounded-xl p-6 mb-6">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <Folder className="h-5 w-5 text-[#C9A84C]" />
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-white">Import Photos from Google Drive Folder</h3>
+                                    </div>
+                                    <p className="text-xs text-[#A1A1A1] leading-relaxed mb-4">
+                                        Paste any public Google Drive folder URL (e.g., <code className="text-[#C9A84C] font-mono">Google Drive/Snapverse/[ShootName]/WebPublish</code>) to instantly import all high-resolution photos into your shoot!
+                                    </p>
+
+                                    {gdriveError && (
+                                        <div className="p-3 mb-4 bg-red-950/40 border border-red-500/20 text-red-400 text-xs font-semibold rounded uppercase flex items-center gap-2">
+                                            <AlertTriangle className="h-4 w-4 shrink-0" />
+                                            <span>{gdriveError}</span>
+                                        </div>
+                                    )}
+                                    {gdriveSuccess && (
+                                        <div className="p-3 mb-4 bg-green-950/40 border border-green-500/20 text-green-400 text-xs font-semibold rounded uppercase flex items-center gap-2">
+                                            <Check className="h-4 w-4 shrink-0" />
+                                            <span>{gdriveSuccess}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-col sm:flex-row gap-3">
+                                        <Input
+                                            type="url"
+                                            placeholder="https://drive.google.com/drive/folders/1A2B3C... or folder link"
+                                            value={gdriveUrl}
+                                            onChange={(e) => setGdriveUrl(e.target.value)}
+                                            disabled={gdriveLoading || saving}
+                                            className="border-white/10 bg-black/40 text-white focus-visible:ring-[#C9A84C] placeholder:text-[#A1A1A1]/40 flex-1 font-mono text-xs"
+                                        />
+                                        <Button
+                                            type="button"
+                                            onClick={handleFetchGDriveFolder}
+                                            disabled={gdriveLoading || saving}
+                                            className="bg-[#C9A84C] hover:bg-[#e2c47a] text-black font-bold uppercase tracking-wider text-xs py-3 px-6 shrink-0 transition-colors"
+                                        >
+                                            {gdriveLoading ? (
+                                                <span className="flex items-center gap-2">
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    Fetching Drive Photos...
+                                                </span>
+                                            ) : (
+                                                "Extract Drive Photos"
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
 
                                 {/* Facebook Importer Quick Tool */}
                                 <div className="bg-[#1C1C1C] border border-[#C9A84C]/30 rounded-xl p-6 mb-8">
@@ -948,6 +1127,48 @@ export default function AdminPage() {
                                                 disabled={saving}
                                                 className="border-white/10 bg-transparent text-white focus-visible:ring-white placeholder:text-[#A1A1A1]/30"
                                             />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Shoot Visibility Control */}
+                                <div className="bg-[#181818] border border-white/10 rounded-xl p-5">
+                                    <label className="block text-[10px] uppercase font-bold tracking-widest text-[#C9A84C] mb-3">
+                                        Shoot Visibility & Access Setting *
+                                    </label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div 
+                                            onClick={() => setVisibility("public")}
+                                            className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                                                visibility === "public"
+                                                    ? "bg-white/10 border-white text-white shadow-lg"
+                                                    : "bg-black/30 border-white/5 text-[#A1A1A1] hover:border-white/20"
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Globe className="h-4 w-4 text-[#C9A84C]" />
+                                                <span className="text-xs font-bold uppercase tracking-wider text-white">Public</span>
+                                            </div>
+                                            <p className="text-[10px] text-[#A1A1A1] leading-relaxed">
+                                                Appears on the main Our Works portfolio page grid and category listings for everyone.
+                                            </p>
+                                        </div>
+
+                                        <div 
+                                            onClick={() => setVisibility("unlisted")}
+                                            className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                                                visibility === "unlisted"
+                                                    ? "bg-purple-950/40 border-purple-500 text-white shadow-lg"
+                                                    : "bg-black/30 border-white/5 text-[#A1A1A1] hover:border-white/20"
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Lock className="h-4 w-4 text-purple-400" />
+                                                <span className="text-xs font-bold uppercase tracking-wider text-white">Only Visible via Link (Unlisted)</span>
+                                            </div>
+                                            <p className="text-[10px] text-[#A1A1A1] leading-relaxed">
+                                                Hidden from the website listing. Accessible ONLY to clients who have the direct shoot link!
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

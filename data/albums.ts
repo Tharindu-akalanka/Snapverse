@@ -15,6 +15,7 @@ export interface Album {
     coverImage: string;
     description: string;
     images: Image[];
+    visibility?: "public" | "unlisted";
 }
 
 const BASE = "/Images/Soucre images";

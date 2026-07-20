@@ -5,7 +5,7 @@ import { Album } from "@/data/albums";
 export async function getDbAlbums(): Promise<Album[]> {
     if (!db) return [];
     try {
-        const albumsQuery = query(collection(db, "albums"), orderBy("createdAt", "desc"));
+        const albumsQuery = query(collection(db, "albums"), orderBy("createdAt", "asc"));
         const querySnapshot = await getDocs(albumsQuery);
         const albums: Album[] = [];
         querySnapshot.forEach((docSnap) => {
@@ -19,6 +19,7 @@ export async function getDbAlbums(): Promise<Album[]> {
                 coverImage: data.coverImage,
                 description: data.description,
                 images: data.images || [],
+                visibility: data.visibility || "public",
                 createdAt: data.createdAt,
             } as Album);
         });
@@ -34,6 +35,7 @@ export async function saveDbAlbum(album: Album & { createdAt?: string }): Promis
     const albumRef = doc(db, "albums", album.slug);
     await setDoc(albumRef, {
         ...album,
+        visibility: album.visibility || "public",
         createdAt: album.createdAt || new Date().toISOString(),
     });
 }
@@ -44,8 +46,14 @@ export async function deleteDbAlbum(slug: string): Promise<void> {
     await deleteDoc(albumRef);
 }
 
+export async function updateDbAlbumVisibility(slug: string, visibility: "public" | "unlisted"): Promise<void> {
+    if (!db) throw new Error("Firestore is not initialized");
+    const albumRef = doc(db, "albums", slug);
+    await setDoc(albumRef, { visibility }, { merge: true });
+}
+
 export function getMergedAlbums(staticAlbums: Album[], dbAlbums: Album[]): Album[] {
     const dbSlugs = new Set(dbAlbums.map(a => a.slug));
     const filteredStatic = staticAlbums.filter(a => !dbSlugs.has(a.slug));
-    return [...dbAlbums, ...filteredStatic];
+    return [...filteredStatic, ...dbAlbums];
 }
