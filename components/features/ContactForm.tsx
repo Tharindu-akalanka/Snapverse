@@ -49,7 +49,7 @@ export function ContactForm() {
 
     if (status === "success") {
         return (
-            <div className="flex flex-col items-center justify-center gap-6 bg-[#1A1A1A] p-12 text-center">
+            <div className="flex flex-col items-center justify-center gap-6 bg-[#1A1A1A] p-12 text-center" aria-live="polite">
                 <CheckCircle2 className="h-12 w-12 text-white animate-bounce" strokeWidth={1} />
                 <h3 className="font-sans text-2xl font-bold uppercase tracking-widest text-white">
                     Message Sent!
@@ -59,7 +59,7 @@ export function ContactForm() {
                 </p>
                 <button
                     onClick={() => setStatus("idle")}
-                    className="mt-6 border border-white px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none cursor-pointer"
+                    className="mt-6 border border-white px-8 py-3.5 min-h-[48px] text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none cursor-pointer active:scale-95"
                 >
                     Send Another Message
                 </button>
@@ -72,6 +72,7 @@ export function ContactForm() {
             {status === "error" && (
                 <div
                     role="alert"
+                    aria-live="assertive"
                     className="p-4 bg-red-950/40 border border-red-500/20 text-red-400 text-xs font-semibold tracking-wider rounded uppercase"
                 >
                     {errorMsg}
@@ -167,7 +168,7 @@ export function ContactForm() {
 
             <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-3 border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black mt-12 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none"
+                className="w-full flex items-center justify-center gap-3 border border-white px-8 py-4 min-h-[48px] text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black mt-12 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none active:scale-[0.99]"
                 disabled={status === "submitting"}
             >
                 {status === "submitting" ? (

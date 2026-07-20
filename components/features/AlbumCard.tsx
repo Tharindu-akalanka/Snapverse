@@ -13,9 +13,12 @@ interface AlbumCardProps {
 
 export function AlbumCard({ album, className }: AlbumCardProps) {
     return (
-        <Link href={`/portfolio/${album.slug}`} className={cn("group block", className)}>
+        <Link
+            href={`/portfolio/${album.slug}`}
+            className={cn("group block outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm active:scale-[0.98] transition-transform duration-150", className)}
+        >
             <motion.div
-                className="relative overflow-hidden bg-[#1A1A1A] mb-4"
+                className="relative overflow-hidden bg-[#1A1A1A] mb-4 rounded-sm border border-white/5"
             >
                 <div className="relative aspect-[3/4] w-full">
                     <Image

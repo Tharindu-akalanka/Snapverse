@@ -152,7 +152,8 @@ export function BookingFormStep({
               min={getMinDate()}
               required
               aria-required="true"
-              className="border-white/10 bg-transparent text-white focus-visible:ring-white py-6"
+              style={{ colorScheme: "dark" }}
+              className="border-white/15 bg-transparent text-white focus-visible:ring-white py-6 min-h-[48px] uppercase cursor-pointer"
             />
           </div>
         </div>
@@ -161,7 +162,7 @@ export function BookingFormStep({
           <label className="block text-[10px] uppercase font-bold tracking-widest text-[#A1A1A1] mb-4">
             Select Package
           </label>
-          <div role="radiogroup" aria-label="Select Shoot Package" className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div role="radiogroup" aria-label="Select Shoot Package" className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {currentPackages.map((pkg) => {
               const isSelected = bookingData.packageId === pkg.id;
               return (
@@ -177,14 +178,19 @@ export function BookingFormStep({
                       handlePackageSelect(pkg.id);
                     }
                   }}
-                  className={`border p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none ${
+                  className={`relative border p-5 sm:p-6 flex flex-col justify-between cursor-pointer rounded-sm transition-all duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none active:scale-[0.98] min-h-[120px] ${
                     isSelected
-                      ? "border-white bg-white/5"
-                      : "border-white/5 bg-transparent hover:border-white/20"
+                      ? "border-white bg-white/15 shadow-xl shadow-white/10 ring-1 ring-white"
+                      : "border-white/15 bg-white/5 hover:border-white/40 hover:bg-white/10"
                   }`}
                 >
+                  {isSelected && (
+                    <span className="absolute top-3 right-3 flex h-5 w-5 items-center justify-center rounded-full bg-white text-black font-bold text-[10px]">
+                      ✓
+                    </span>
+                  )}
                   <div>
-                    <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-white mb-2">
+                    <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-white mb-2 pr-6">
                       {pkg.name}
                     </h3>
                     <div className="text-[10px] text-[#A1A1A1] uppercase tracking-wider font-semibold mb-4">
@@ -215,14 +221,19 @@ export function BookingFormStep({
                   handlePackageSelect("custom");
                 }
               }}
-              className={`border p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none ${
+              className={`relative border p-6 flex flex-col justify-between cursor-pointer rounded-sm transition-all duration-200 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none active:scale-[0.98] ${
                 bookingData.packageId === "custom"
-                  ? "border-white bg-white/5"
-                  : "border-white/5 bg-transparent hover:border-white/20"
+                  ? "border-white bg-white/10 shadow-lg shadow-white/5"
+                  : "border-white/10 bg-transparent hover:border-white/30"
               }`}
             >
+              {bookingData.packageId === "custom" && (
+                <span className="absolute top-3 right-3 flex h-5 w-5 items-center justify-center rounded-full bg-white text-black font-bold text-[10px]">
+                  ✓
+                </span>
+              )}
               <div>
-                <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-white mb-2">
+                <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-white mb-2 pr-6">
                   Custom Plan
                 </h3>
                 <div className="text-[10px] text-[#A1A1A1] uppercase tracking-wider font-semibold mb-4">

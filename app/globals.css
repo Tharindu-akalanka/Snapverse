@@ -64,3 +64,25 @@ body {
 .mb-safe {
   margin-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
+
+/* Touch feedback and mobile highlight removal */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scroll fade edge mask for mobile horizontal swipe containers */
+.scroll-mask-x {
+  mask-image: linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 12px, black calc(100% - 12px), transparent);
+}
+
+/* Dynamic viewport height helper for mobile browsers */
+.min-h-dvh {
+  min-height: 100dvh;
+}
+
+/* Accessible focus ring for mobile touch & keyboard navigation */
+:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 3px;
+}

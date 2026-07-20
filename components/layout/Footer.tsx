@@ -117,7 +117,7 @@ export function Footer() {
                             </span>
                         </Link>
 
-                        <p className="text-xs leading-relaxed tracking-wide text-[#777] max-w-[260px]">
+                        <p className="text-xs leading-relaxed tracking-wide text-[#A1A1A1] max-w-[260px]">
                             Moments in Focus — timeless imagery, every frame.
                         </p>
 
@@ -306,7 +306,7 @@ export function Footer() {
                                         <Icon size={14} strokeWidth={1.5} />
                                     </span>
                                     <div className="flex flex-col">
-                                        <span className="text-xs uppercase tracking-widest text-[#555]">{label}</span>
+                                        <span className="text-xs uppercase tracking-widest text-[#A1A1A1]">{label}</span>
                                         <span>{value}</span>
                                     </div>
                                 </a>
@@ -325,10 +325,10 @@ export function Footer() {
                 <div className="relative mt-12">
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     <div className="flex flex-col items-center justify-between gap-3 pt-7 text-[10px] tracking-widest uppercase sm:flex-row">
-                        <span className="text-[#666]">
+                        <span className="text-[#A1A1A1]">
                             &copy; {new Date().getFullYear()} Snapverse. All rights reserved.
                         </span>
-                        <span className="text-[#666]">
+                        <span className="text-[#A1A1A1]">
                             Crafted with passion · Sri Lanka
                         </span>
                     </div>

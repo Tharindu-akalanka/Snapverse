@@ -27,17 +27,28 @@ export function GalleryLightbox({ images }: GalleryLightboxProps) {
         }
     }, [index, images.length]);
 
-    // Prevent background page scrolling when lightbox open
+    // Prevent background page scrolling when lightbox open & preload adjacent images
     useEffect(() => {
         if (index !== null) {
             document.body.style.overflow = "hidden";
+            // Preload next & previous images for instant touch-swipe transitions
+            const nextIdx = (index + 1) % images.length;
+            const prevIdx = (index - 1 + images.length) % images.length;
+            if (images[nextIdx]?.src) {
+                const imgNext = new window.Image();
+                imgNext.src = images[nextIdx].src;
+            }
+            if (images[prevIdx]?.src) {
+                const imgPrev = new window.Image();
+                imgPrev.src = images[prevIdx].src;
+            }
         } else {
             document.body.style.overflow = "";
         }
         return () => {
             document.body.style.overflow = "";
         };
-    }, [index]);
+    }, [index, images]);
 
     // Keyboard support
     useEffect(() => {
@@ -212,24 +223,24 @@ export function GalleryLightbox({ images }: GalleryLightboxProps) {
 
                         {/* Mobile Bottom Thumb Controls Bar */}
                         <div
-                            className="flex md:hidden absolute bottom-6 inset-x-6 z-[60] items-center justify-between bg-[#0B0B0B]/90 border border-white/15 rounded-full px-4 py-2 backdrop-blur-lg shadow-xl"
+                            className="flex md:hidden absolute bottom-8 inset-x-6 z-[60] items-center justify-between bg-[#0B0B0B]/95 border border-white/20 rounded-full px-4 py-2 backdrop-blur-xl shadow-2xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
                                 onClick={prevImage}
-                                className="flex items-center justify-center w-11 h-11 text-white active:scale-95 transition-transform cursor-pointer"
+                                className="flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 text-white active:scale-95 transition-transform cursor-pointer focus-visible:outline-2 focus-visible:outline-white rounded-full"
                                 aria-label="Previous image"
                             >
                                 <ChevronLeft size={24} />
                             </button>
 
-                            <span className="text-[10px] uppercase font-bold tracking-widest text-[#A1A1A1]">
-                                Swipe or tap arrows
+                            <span className="text-[10px] uppercase font-bold tracking-widest text-white/80">
+                                Swipe or tap
                             </span>
 
                             <button
                                 onClick={nextImage}
-                                className="flex items-center justify-center w-11 h-11 text-white active:scale-95 transition-transform cursor-pointer"
+                                className="flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 text-white active:scale-95 transition-transform cursor-pointer focus-visible:outline-2 focus-visible:outline-white rounded-full"
                                 aria-label="Next image"
                             >
                                 <ChevronRight size={24} />

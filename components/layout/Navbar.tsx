@@ -163,7 +163,7 @@ export function Navbar() {
                         {/* Mobile hamburger */}
                         <button
                             id="menu-toggle"
-                            className="md:hidden flex h-10 w-10 items-center justify-center text-white focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-md outline-none"
+                            className="md:hidden flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center text-white focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-md outline-none active:scale-95 transition-transform"
                             onClick={() => setMenuOpen((prev) => !prev)}
                             aria-label="Toggle menu"
                             aria-expanded={menuOpen}
@@ -211,7 +211,7 @@ export function Navbar() {
                         className="fixed inset-x-0 top-[80px] z-40 md:hidden bg-[#0B0B0B] border-b border-white/5 shadow-2xl"
                     >
                         <div className="px-6 py-8 flex flex-col gap-6">
-                            <nav className="flex flex-col gap-6">
+                            <nav className="flex flex-col gap-3">
                                 {links.map((link, i) => (
                                     <motion.div
                                         key={link.href}
@@ -224,10 +224,10 @@ export function Navbar() {
                                             onClick={() => setMenuOpen(false)}
                                             aria-current={pathname === link.href ? "page" : undefined}
                                             className={cn(
-                                                "text-sm font-bold tracking-[0.15em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 rounded-sm outline-none",
+                                                "flex items-center min-h-[44px] py-2 px-3 text-sm font-bold tracking-[0.15em] uppercase transition-colors focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 rounded-sm outline-none active:bg-white/5",
                                                 pathname === link.href
-                                                    ? "text-white"
-                                                    : "text-[#A1A1A1]"
+                                                    ? "text-white bg-white/10"
+                                                    : "text-[#A1A1A1] hover:text-white"
                                             )}
                                         >
                                             {link.label}

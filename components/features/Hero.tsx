@@ -48,7 +48,7 @@ export function Hero() {
     }, [heroImages]);
 
     return (
-        <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0B0B0B]">
+        <section className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#0B0B0B]">
             {/* Background Slideshow */}
             <div className="absolute inset-0 z-0">
                 <AnimatePresence mode="sync">
@@ -72,7 +72,7 @@ export function Hero() {
                     initial={{ opacity: 0, y: 36 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.9, ease: "easeOut" }}
-                    className="max-w-4xl mx-auto flex flex-col items-center justify-center pt-20"
+                    className="max-w-4xl mx-auto flex flex-col items-center justify-center pt-16 md:pt-20 pb-12"
                 >
                     <h1 className="mb-6 font-sans text-5xl uppercase tracking-wide text-white md:text-7xl lg:text-8xl leading-tight">
                         <span className="font-bold">MOMENTS</span> <br />
@@ -84,16 +84,16 @@ export function Hero() {
                         photography
                     </p>
 
-                    <div className="flex flex-col items-center gap-6 w-full max-w-xs md:max-w-none">
+                    <div className="flex flex-col items-center gap-5 w-full max-w-xs md:max-w-none">
                         <Link
                             href="/booking"
-                            className="flex w-full md:w-auto md:min-w-[220px] items-center justify-center border border-white px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black"
+                            className="flex w-full md:w-auto md:min-w-[220px] items-center justify-center border border-white px-8 py-3.5 min-h-[44px] text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none active:scale-95"
                         >
                             BOOK NOW
                         </Link>
                         <Link
                             href="/portfolio"
-                            className="flex items-center justify-center text-xs font-light tracking-[0.1em] text-[#dcdcdc] transition-colors duration-300 hover:text-white group"
+                            className="flex items-center justify-center min-h-[44px] px-4 text-xs font-medium tracking-[0.1em] text-[#dcdcdc] transition-colors duration-300 hover:text-white group focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 outline-none"
                         >
                             View Our Works
                             <span className="ml-2 transform transition-transform duration-300 group-hover:translate-x-1">→</span>
@@ -102,18 +102,18 @@ export function Hero() {
                 </motion.div>
             </div>
 
-            {/* Scroll indicator */}
+            {/* Scroll indicator — bottom-20 on mobile to clear MobileBottomNav */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2, duration: 1 }}
-                className="absolute bottom-12 left-1/2 -translate-x-1/2"
+                className="absolute bottom-20 md:bottom-12 left-1/2 -translate-x-1/2 pointer-events-none"
             >
-                <div className="h-10 w-6 rounded-full border border-white/20 p-1 flex justify-center">
+                <div className="h-9 w-5 rounded-full border border-white/20 p-1 flex justify-center">
                     <motion.div
-                        animate={{ y: [0, 12, 0] }}
+                        animate={{ y: [0, 10, 0] }}
                         transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                        className="h-2 w-1.5 rounded-full bg-[#A1A1A1]"
+                        className="h-2 w-1 rounded-full bg-[#A1A1A1]"
                     />
                 </div>
             </motion.div>
