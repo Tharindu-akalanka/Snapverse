@@ -127,8 +127,7 @@ export function Footer() {
                                 <a
                                     key={label} href={href}
                                     target="_blank" rel="noreferrer" aria-label={label}
-                                    className="flex h-9 w-9 items-center justify-center border border-white/10 text-[#A1A1A1]
-                                               transition-all duration-300 hover:border-white/40 hover:text-white hover:bg-white/5"
+                                    className="flex h-9 w-9 items-center justify-center border border-white/10 text-[#A1A1A1] transition-all duration-300 hover:border-white/40 hover:text-white hover:bg-white/5"
                                 >
                                     {Icon ? <Icon size={15} strokeWidth={1.5} /> : <TikTokIcon size={15} />}
                                 </a>
@@ -196,10 +195,8 @@ export function Footer() {
                         viewport={{ once: true, amount: 0 }} custom={3}
                     >
                         <Link
-                            href="/contact"
-                            className="flex w-full items-center justify-center border border-white px-6 py-3
-                                       text-xs font-bold uppercase tracking-[0.2em] text-white
-                                       transition-colors duration-300 hover:bg-white hover:text-black"
+                            href="/booking"
+                            className="flex w-full items-center justify-center border border-white px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black"
                         >
                             Book a Session
                         </Link>
@@ -240,8 +237,7 @@ export function Footer() {
                                 <a
                                     key={label} href={href}
                                     target="_blank" rel="noreferrer" aria-label={label}
-                                    className="flex h-9 w-9 items-center justify-center border border-white/10 text-[#A1A1A1]
-                                               transition-all duration-300 hover:border-white/40 hover:text-white hover:bg-white/5"
+                                    className="flex h-9 w-9 items-center justify-center border border-white/10 text-[#A1A1A1] transition-all duration-300 hover:border-white/40 hover:text-white hover:bg-white/5"
                                 >
                                     {Icon ? <Icon size={16} strokeWidth={1.5} /> : <TikTokIcon size={16} />}
                                 </a>
@@ -266,6 +262,13 @@ export function Footer() {
                                     {label}
                                 </Link>
                             ))}
+                            <Link
+                                href="/booking"
+                                className="group flex items-center gap-2 text-sm tracking-wide transition-colors duration-300 hover:text-white"
+                            >
+                                <span className="h-px w-4 bg-white/20 transition-all duration-300 group-hover:w-6 group-hover:bg-white/60" />
+                                Book a Session
+                            </Link>
                         </nav>
                     </motion.div>
 
@@ -299,8 +302,7 @@ export function Footer() {
                                     target="_blank" rel="noreferrer"
                                     className="group flex items-center gap-3 text-sm tracking-wide transition-colors duration-300 hover:text-white"
                                 >
-                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-white/10
-                                                     text-[#A1A1A1] transition-all duration-300 group-hover:border-white/30 group-hover:text-white">
+                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-white/10 text-[#A1A1A1] transition-all duration-300 group-hover:border-white/30 group-hover:text-white">
                                         <Icon size={14} strokeWidth={1.5} />
                                     </span>
                                     <div className="flex flex-col">
@@ -311,10 +313,8 @@ export function Footer() {
                             ))}
                         </div>
                         <Link
-                            href="/contact"
-                            className="mt-2 inline-flex items-center justify-center border border-white px-6 py-2.5
-                                       text-xs font-bold uppercase tracking-[0.15em] text-white
-                                       transition-colors duration-300 hover:bg-white hover:text-black"
+                            href="/booking"
+                            className="mt-2 inline-flex items-center justify-center border border-white px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-white transition-colors duration-300 hover:bg-white hover:text-black"
                         >
                             Book a Session
                         </Link>
@@ -325,10 +325,10 @@ export function Footer() {
                 <div className="relative mt-12">
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                     <div className="flex flex-col items-center justify-between gap-3 pt-7 text-[10px] tracking-widest uppercase sm:flex-row">
-                        <span className="text-[#444]">
+                        <span className="text-[#666]">
                             &copy; {new Date().getFullYear()} Snapverse. All rights reserved.
                         </span>
-                        <span className="text-[#444]">
+                        <span className="text-[#666]">
                             Crafted with passion · Sri Lanka
                         </span>
                     </div>

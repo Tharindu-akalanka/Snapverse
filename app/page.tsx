@@ -7,6 +7,27 @@ import { Container } from "@/components/ui/Container";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "SnapVerse | Capturing Moments",
+  description:
+    "SnapVerse is a premium photography studio based in Sri Lanka. We specialise in weddings, engagements, pre-shoots, graduations, events, and commercial photography.",
+  openGraph: {
+    title: "SnapVerse | Capturing Moments",
+    description: "Premium event & lifestyle photography — Sri Lanka.",
+    url: "https://snapverse.studio",
+    siteName: "SnapVerse",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SnapVerse | Capturing Moments",
+    description: "Premium event & lifestyle photography — Sri Lanka.",
+  },
+};
+
+
 
 export default function Home() {
   return (
@@ -52,7 +73,7 @@ export default function Home() {
                 Let's Capture <br />Your Moment.
               </h2>
               <Link
-                href="/contact"
+                href="/booking"
                 className="inline-flex items-center justify-center border border-white px-10 py-4 text-sm font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black"
               >
                 Book A Session

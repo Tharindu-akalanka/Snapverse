@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
 import { AlbumGrid } from "@/components/features/AlbumGrid";
-import { albums } from "@/data/albums";
+import { albums as staticAlbums, Album } from "@/data/albums";
+import { getDbAlbums, getMergedAlbums } from "@/lib/db-albums";
 import { cn } from "@/lib/utils";
 
 const categories = ["All", "Wedding", "Engagement", "Pre-shoot", "Events", "Commercial", "Birthday", "Graduation"];
@@ -16,11 +17,28 @@ function PortfolioContent() {
     const searchParams = useSearchParams();
     const initialCategory = searchParams.get("category") || "All";
     const [activeCategory, setActiveCategory] = useState(initialCategory);
+    const [allAlbums, setAllAlbums] = useState<Album[]>(staticAlbums);
+
+    useEffect(() => {
+        const loadAlbums = async () => {
+            try {
+                const dbAlbums = await getDbAlbums();
+                if (dbAlbums && dbAlbums.length > 0) {
+                    const merged = getMergedAlbums(staticAlbums, dbAlbums);
+                    setAllAlbums(merged);
+                }
+            } catch (err) {
+                console.error("Failed to load custom albums:", err);
+            }
+        };
+        loadAlbums();
+    }, []);
 
     const filteredAlbums =
         activeCategory === "All"
-            ? albums
-            : albums.filter((album) => album.category === activeCategory);
+            ? allAlbums
+            : allAlbums.filter((album) => album.category === activeCategory);
+
 
     return (
         <>

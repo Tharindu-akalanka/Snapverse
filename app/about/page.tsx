@@ -56,10 +56,10 @@ export default function AboutPage() {
                                 </p>
                                 <div>
                                     <Link
-                                        href="/contact"
+                                        href="/booking"
                                         className="inline-flex items-center justify-center border border-white px-10 py-4 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black"
                                     >
-                                        Work With Us
+                                        Book a Session
                                     </Link>
                                 </div>
                             </div>

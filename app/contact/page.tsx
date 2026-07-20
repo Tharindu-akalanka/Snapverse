@@ -38,7 +38,7 @@ export default function ContactPage() {
                 {/* ── Page header ── */}
                 <div className="pt-32 pb-16 text-center px-4">
                     <div className="mb-6 inline-flex items-center border border-white px-5 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-                        Book a Session
+                        Get In Touch
                     </div>
                     <h1 className="font-sans text-4xl md:text-6xl font-bold uppercase tracking-tight text-white">
                         Get in Touch

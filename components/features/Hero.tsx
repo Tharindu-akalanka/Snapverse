@@ -86,7 +86,7 @@ export function Hero() {
 
                     <div className="flex flex-col items-center gap-6 w-full max-w-xs md:max-w-none">
                         <Link
-                            href="/contact"
+                            href="/booking"
                             className="flex w-full md:w-auto md:min-w-[220px] items-center justify-center border border-white px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors duration-300 hover:bg-white hover:text-black"
                         >
                             BOOK NOW

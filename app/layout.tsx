@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+import { AuthContextProvider } from "@/lib/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "SnapVerse | Capturing Moments",
@@ -21,13 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body
-        className={cn(
-          inter.variable,
-          "antialiased min-h-screen flex flex-col font-sans"
-        )}
-      >
-        {children}
+      <body className="antialiased min-h-screen flex flex-col font-sans">
+        <AuthContextProvider>{children}</AuthContextProvider>
       </body>
     </html>
   );
