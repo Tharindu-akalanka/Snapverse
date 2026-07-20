@@ -60,13 +60,23 @@ export default function BookingPage() {
             <div className="max-w-4xl mx-auto">
               {/* Stepper Header */}
               <div
-                className="mb-12"
+                className="mb-10 sm:mb-12"
                 role="progressbar"
                 aria-valuenow={step}
                 aria-valuemin={1}
                 aria-valuemax={4}
                 aria-valuetext={`Step ${step} of 4: ${stepsList[step - 1].label}`}
               >
+                {/* Mobile current step label banner */}
+                <div className="text-center mb-6 sm:hidden">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#A1A1A1]">
+                    STEP {step} OF 4
+                  </span>
+                  <h2 className="text-lg font-bold uppercase tracking-wider text-white mt-1">
+                    {stepsList[step - 1].label}
+                  </h2>
+                </div>
+
                 <div className="flex items-center justify-between relative">
                   {/* Progress Line */}
                   <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/5 -translate-y-1/2 z-0" />
@@ -87,7 +97,7 @@ export default function BookingPage() {
                         className="flex flex-col items-center z-10"
                       >
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-sans font-bold text-sm border-2 transition-all duration-500 ${
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center font-sans font-bold text-sm border-2 transition-all duration-500 ${
                             isCurrent
                               ? "bg-white text-black border-white scale-110 shadow-lg shadow-white/10"
                               : isActive

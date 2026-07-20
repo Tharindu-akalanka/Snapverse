@@ -113,19 +113,24 @@ export default function AdminPage() {
                 throw new Error(data.error || "Failed to extract photos from Facebook link.");
             }
 
+            // Clean URLs
+            const cleanImages = data.images.map((img: string) => 
+                img.replaceAll("&amp;", "&").replaceAll("\\u0026", "&").trim()
+            );
+
             // Auto-fill title if currently empty
             if (!title && data.title) {
                 setTitle(data.title);
             }
 
             // Auto-set cover image if coverUrl is currently empty
-            if (!coverUrl && data.images.length > 0) {
+            if (!coverUrl && cleanImages.length > 0) {
                 setCoverType("url");
-                setCoverUrl(data.images[0]);
+                setCoverUrl(cleanImages[0]);
             }
 
             // Append photos to externalUrlsText
-            const newUrls = data.images.join("\n");
+            const newUrls = cleanImages.join("\n");
             setExternalUrlsText((prev) => (prev ? prev + "\n" + newUrls : newUrls));
 
             setFbSuccess(`Extracted ${data.count} high-resolution photo(s) from Facebook!`);
@@ -324,7 +329,7 @@ export default function AdminPage() {
         setSaving(true);
 
         try {
-            let finalCoverUrl = coverUrl.trim();
+            let finalCoverUrl = coverUrl.replaceAll("&amp;", "&").replaceAll("\\u0026", "&").trim();
 
             // 1. Upload Cover Image if type is upload and cover file is selected
             if (coverType === "upload" && coverFile) {
@@ -383,11 +388,27 @@ export default function AdminPage() {
 
             const allUploadedImages = [...existingUploaded, ...uploadedUrls];
 
-            // 3. Process External URLs Text
-            const pastedUrls = externalUrlsText
-                .split("\n")
-                .map(u => u.trim())
-                .filter(u => u.length > 0)
+            // 3. Process External URLs Text (with auto line-wrap stitching & sanitization)
+            const rawLines = externalUrlsText.split("\n");
+            const cleanedUrls: string[] = [];
+            let currentUrl = "";
+
+            for (let line of rawLines) {
+                line = line.trim();
+                if (!line) continue;
+                if (line.startsWith("http://") || line.startsWith("https://")) {
+                    if (currentUrl) cleanedUrls.push(currentUrl);
+                    currentUrl = line;
+                } else if (currentUrl) {
+                    // Append line-wrapped URL fragment
+                    currentUrl += line;
+                }
+            }
+            if (currentUrl) cleanedUrls.push(currentUrl);
+
+            const pastedUrls = cleanedUrls
+                .map(u => u.replaceAll("&amp;", "&").replaceAll("\\u0026", "&").trim())
+                .filter(u => u.startsWith("http://") || u.startsWith("https://"))
                 .map((url, idx) => ({
                     id: `ext-${idx + 1}-${Date.now()}`,
                     src: url,

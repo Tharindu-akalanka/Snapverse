@@ -127,9 +127,9 @@ export function Footer() {
                                 <a
                                     key={label} href={href}
                                     target="_blank" rel="noreferrer" aria-label={label}
-                                    className="flex h-9 w-9 items-center justify-center border border-white/10 text-[#A1A1A1] transition-all duration-300 hover:border-white/40 hover:text-white hover:bg-white/5"
+                                    className="flex h-11 w-11 items-center justify-center border border-white/15 text-[#A1A1A1] transition-all duration-300 hover:border-white/50 hover:text-white hover:bg-white/5 outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm"
                                 >
-                                    {Icon ? <Icon size={15} strokeWidth={1.5} /> : <TikTokIcon size={15} />}
+                                    {Icon ? <Icon size={18} strokeWidth={1.5} /> : <TikTokIcon size={18} />}
                                 </a>
                             ))}
                         </div>
@@ -174,13 +174,13 @@ export function Footer() {
                                     <a
                                         key={label} href={href}
                                         target="_blank" rel="noreferrer"
-                                        className="group flex flex-col gap-0.5 text-xs tracking-wide transition-colors duration-300 hover:text-white"
+                                        className="group flex flex-col gap-0.5 text-xs tracking-wide transition-colors duration-300 hover:text-white outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm p-1"
                                     >
-                                        <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#555]">
+                                        <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#A1A1A1]">
                                             <Icon size={11} strokeWidth={1.5} />
                                             {label}
                                         </span>
-                                        <span className="text-sm font-medium text-[#A1A1A1] group-hover:text-white transition-colors">
+                                        <span className="text-sm font-medium text-white group-hover:text-white transition-colors">
                                             {value}
                                         </span>
                                     </a>

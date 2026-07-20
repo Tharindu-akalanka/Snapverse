@@ -47,3 +47,20 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--foreground);
 }
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area padding utilities for mobile edge-to-edge screens */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.mb-safe {
+  margin-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}

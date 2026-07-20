@@ -53,22 +53,24 @@ function PortfolioContent() {
                         </p>
                     </div>
 
-                    {/* Category filters */}
-                    <div className="mb-16 flex flex-wrap justify-center gap-4">
-                        {categories.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => setActiveCategory(category)}
-                                className={cn(
-                                    "px-6 py-2 text-[10px] font-bold uppercase tracking-[0.2em] border transition-colors duration-300",
-                                    activeCategory === category
-                                        ? "bg-white text-black border-white"
-                                        : "bg-transparent border-white/20 text-[#A1A1A1] hover:border-white hover:text-white"
-                                )}
-                            >
-                                {category}
-                            </button>
-                        ))}
+                    {/* Category filters — mobile horizontal scrollable pill bar, desktop flex-wrap */}
+                    <div className="relative mb-12 md:mb-16">
+                        <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-2 px-1 snap-x sm:justify-center sm:flex-wrap">
+                            {categories.map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => setActiveCategory(category)}
+                                    className={cn(
+                                        "min-h-[44px] px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] border transition-all duration-300 shrink-0 snap-start rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer",
+                                        activeCategory === category
+                                            ? "bg-white text-black border-white shadow-lg shadow-white/10 scale-105"
+                                            : "bg-[#1A1A1A]/80 border-white/15 text-[#A1A1A1] hover:border-white hover:text-white"
+                                    )}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <AlbumGrid albums={filteredAlbums} />

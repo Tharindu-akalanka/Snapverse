@@ -17,21 +17,48 @@ export async function POST(request: Request) {
             formattedUrl = "https://" + formattedUrl;
         }
 
-        // Fetch HTML content of the Facebook post
-        const response = await fetch(formattedUrl, {
-            headers: {
-                "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept":
-                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Sec-Fetch-Dest": "document",
-                "Sec-Fetch-Mode": "navigate",
-                "Sec-Fetch-Site": "none",
-                "Upgrade-Insecure-Requests": "1",
-            },
-            cache: "no-store",
-        });
+        // If user directly pasted an image URL (e.g., scontent...fbcdn.net or .jpg/.png)
+        if (
+            formattedUrl.includes("fbcdn.net") ||
+            formattedUrl.includes("fbsbx.com") ||
+            /\.(jpg|jpeg|png|webp|avif)(\?.*)?$/i.test(formattedUrl)
+        ) {
+            const cleanImgUrl = formattedUrl
+                .replaceAll("\\/", "/")
+                .replaceAll("&amp;", "&")
+                .replaceAll("\\u0026", "&")
+                .replaceAll("\\u003d", "=")
+                .replaceAll("\\u003f", "?")
+                .split(/["'\s<>\\]/)[0];
+
+            return NextResponse.json({
+                success: true,
+                title: "Direct Image Link",
+                count: 1,
+                images: [cleanImgUrl],
+            });
+        }
+
+        // Prepare headers: Mobile Safari user-agent avoids FB login redirects on public pages
+        const headers = {
+            "User-Agent":
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+            "Accept":
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+        };
+
+        // Try primary fetch
+        let response = await fetch(formattedUrl, { headers, cache: "no-store", redirect: "follow" });
+
+        // If failed or redirected to login, try m.facebook.com variant
+        if (!response.ok || response.url.includes("login.php")) {
+            let mobileUrl = formattedUrl.replace("www.facebook.com", "m.facebook.com");
+            if (!mobileUrl.includes("m.facebook.com") && mobileUrl.includes("facebook.com")) {
+                mobileUrl = mobileUrl.replace("facebook.com", "m.facebook.com");
+            }
+            response = await fetch(mobileUrl, { headers, cache: "no-store", redirect: "follow" });
+        }
 
         if (!response.ok) {
             return NextResponse.json(
@@ -45,37 +72,46 @@ export async function POST(request: Request) {
 
         const rawHtml = await response.text();
 
-        // 1. Decode escaped slashes in JSON payloads (Facebook encodes https:\/\/scontent...)
-        const unescapedHtml = rawHtml.replaceAll("\\/", "/").replaceAll("&amp;", "&");
+        // Decode escaped slashes & character codes in JSON payloads (Facebook embeds JSON strings)
+        const unescapedHtml = rawHtml
+            .replaceAll("\\/", "/")
+            .replaceAll("&amp;", "&")
+            .replaceAll("\\u0026", "&")
+            .replaceAll("\\u003d", "=")
+            .replaceAll("\\u003f", "?");
 
-        // 2. Extract OpenGraph Title
+        // Extract Title / OG Title
         let ogTitle = "";
-        const titleMatch = unescapedHtml.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) ||
-                           unescapedHtml.match(/<title>(.*?)<\/title>/i);
+        const titleMatch =
+            unescapedHtml.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i) ||
+            unescapedHtml.match(/<title>(.*?)<\/title>/i);
         if (titleMatch && titleMatch[1]) {
             ogTitle = titleMatch[1].replace(/ - Facebook$/, "").trim();
         }
 
-        // 3. Regex for extracting high-res Facebook CDN image URLs
-        // Facebook photo URLs usually match: scontent*.fbcdn.net or external*.fbcdn.net or fbsbx.com
-        const fbcdnRegex = /https?:\/\/[a-zA-Z0-9.-]*fbcdn\.net\/[^\s"'\<\>]+|https?:\/\/[a-zA-Z0-9.-]*fbsbx\.com\/[^\s"'\<\>]+/gi;
+        // Regex for extracting high-res Facebook CDN image URLs
+        const fbcdnRegex = /https?:\/\/[a-zA-Z0-9.-]*fbcdn\.net\/[^\s"'\<\>\\]+|https?:\/\/[a-zA-Z0-9.-]*fbsbx\.com\/[^\s"'\<\>\\]+/gi;
 
         const matches = unescapedHtml.match(fbcdnRegex) || [];
 
-        // Also check og:image meta tags explicitly
+        // Check og:image meta tags explicitly
         const ogImageMatches = Array.from(
             unescapedHtml.matchAll(/<meta\s+property="og:image"\s+content="([^"]+)"/gi)
         ).map((m) => m[1]);
 
         const rawUrls = [...ogImageMatches, ...matches];
 
-        // 4. Clean & Filter URLs
+        // Clean & Filter extracted URLs
         const validUrls: string[] = [];
         const seenIds = new Set<string>();
 
         for (let imgUrl of rawUrls) {
-            // Clean up trailing characters or quotes
-            imgUrl = imgUrl.split(/["'\s<>\\]/)[0];
+            // Clean trailing quotes, JSON brackets, backslashes
+            imgUrl = imgUrl
+                .replaceAll("\\/", "/")
+                .replaceAll("&amp;", "&")
+                .replaceAll("\\u0026", "&")
+                .split(/["'\s<>\\]/)[0];
 
             // Filter out small thumbnails, icons, profile pics, and static JS assets
             if (
@@ -89,12 +125,12 @@ export async function POST(request: Request) {
                 imgUrl.includes("/s50x50/") ||
                 imgUrl.includes("/s100x100/") ||
                 imgUrl.includes("cp0_") ||
-                imgUrl.includes(".png?") // usually UI icons
+                imgUrl.includes(".png?")
             ) {
                 continue;
             }
 
-            // Extract a unique identifier from Facebook URL (e.g. 482057382_677508974847198)
+            // Extract a unique identifier from Facebook URL
             const idMatch = imgUrl.match(/(\d+_\d+_\d+_n|\d+_\d+_n|[a-f0-9]{32})/i);
             const imageId = idMatch ? idMatch[1] : imgUrl.split("?")[0];
 
@@ -107,7 +143,7 @@ export async function POST(request: Request) {
         if (validUrls.length === 0) {
             return NextResponse.json({
                 success: false,
-                error: "No high-resolution images found on the provided Facebook link. Ensure the post is public and contains photos.",
+                error: "No high-resolution images found on the provided Facebook link. Ensure the post is public and contains photos, or paste image URLs directly in Option B.",
             });
         }
 

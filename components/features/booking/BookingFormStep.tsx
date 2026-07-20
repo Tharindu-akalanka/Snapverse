@@ -120,7 +120,7 @@ export function BookingFormStep({
                 onChange={handleCategoryChange}
                 required
                 aria-required="true"
-                className="w-full h-10 px-3 py-2 bg-transparent text-white border border-white/10 rounded-md text-sm outline-none focus:ring-2 focus:ring-white transition-all appearance-none cursor-pointer pr-10"
+                className="w-full h-12 min-h-[48px] px-4 py-3 bg-transparent text-white border border-white/15 rounded-md text-sm outline-none focus:ring-2 focus:ring-white transition-all appearance-none cursor-pointer pr-10"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat} className="bg-[#1A1A1A] text-white">

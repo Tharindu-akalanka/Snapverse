@@ -4,7 +4,7 @@ import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 const inputCls =
-    "w-full border-b border-white/20 bg-transparent py-4 px-1 text-sm text-white placeholder:text-[#A1A1A1] outline-none transition-all hover:border-white/50 focus:border-white focus-visible:ring-1 focus-visible:ring-white/20 focus-visible:border-white rounded-t-sm";
+    "w-full border-b border-white/20 bg-transparent py-3.5 px-2 text-sm text-white placeholder:text-[#A1A1A1] outline-none transition-all hover:border-white/50 focus:border-white focus-visible:ring-2 focus-visible:ring-white rounded-t-sm min-h-[48px]";
 
 // FormSubmit.co endpoint — replace the email address with the real recipient
 const FORMSUBMIT_ENDPOINT = "https://formsubmit.co/ajax/snapverse.studio@gmail.com";

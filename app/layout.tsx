@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthContextProvider } from "@/lib/contexts/AuthContext";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
 export const metadata: Metadata = {
   title: "SnapVerse | Capturing Moments",
@@ -14,9 +15,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className="antialiased min-h-screen flex flex-col font-sans">
-        <AuthContextProvider>{children}</AuthContextProvider>
+      <body className="antialiased min-h-screen flex flex-col font-sans pb-16 md:pb-0">
+        <AuthContextProvider>
+          {children}
+          <MobileBottomNav />
+        </AuthContextProvider>
       </body>
     </html>
   );
 }
+
