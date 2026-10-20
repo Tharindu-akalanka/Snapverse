@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from 'next/navigation';
 
 export function DriveAutoSyncListener() {
+    const pathname=usePathname();
     const isSyncingRef = useRef(false);
 
     const triggerSync = async () => {
@@ -35,6 +37,7 @@ export function DriveAutoSyncListener() {
     };
 
     useEffect(() => {
+        if(pathname.startsWith('/select')) return;
         // Initial sync scan on app load
         triggerSync();
 
@@ -42,7 +45,7 @@ export function DriveAutoSyncListener() {
         const intervalId = setInterval(triggerSync, 60000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, [pathname]);
 
     return null;
 }
