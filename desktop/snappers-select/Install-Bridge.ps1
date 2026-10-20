@@ -22,4 +22,11 @@ New-ItemProperty -Path $protocol -Name 'URL Protocol' -Value '' -PropertyType St
 New-Item -Path ($protocol+'\shell\open\command') -Force | Out-Null
 $command='"'+$nodePath+'" "'+(Join-Path $destination 'bridge.mjs')+'" "%1"'
 Set-Item -Path ($protocol+'\shell\open\command') -Value $command
+$association='HKCU:\Software\Classes\.snappers-selection'
+New-Item -Path $association -Force | Out-Null
+Set-Item -Path $association -Value 'SnappersSelect.Selection'
+$fileType='HKCU:\Software\Classes\SnappersSelect.Selection'
+New-Item -Path ($fileType+'\shell\open\command') -Force | Out-Null
+Set-Item -Path $fileType -Value 'Snappers Lightroom Selection'
+Set-Item -Path ($fileType+'\shell\open\command') -Value $command
 Write-Host 'Bridge installed. Add SnappersSelect.lrplugin in Lightroom Plug-in Manager, then use Open in Lightroom on a submitted album.'
