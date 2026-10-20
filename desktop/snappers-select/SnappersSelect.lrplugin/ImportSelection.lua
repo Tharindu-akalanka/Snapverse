@@ -12,7 +12,7 @@ local pending=prefs.pendingSelection
 prefs.pendingSelection=nil
 prefs.bridgeBusy=true
 LrTasks.startAsyncTask(function()
- local file = pending and {pending} or LrDialogs.runOpenPanel {title='Choose Snappers selection',canChooseFiles=true,canChooseDirectories=false,allowsMultipleSelection=false,fileTypes={'txt'}}
+ local file = pending and {pending} or LrDialogs.runOpenPanel {title='Choose Snappers selection',canChooseFiles=true,canChooseDirectories=false,allowsMultipleSelection=false,fileTypes={'txt','snappers-selection'}}
  if not file then prefs.bridgeBusy=false;return end
  local rawRoot = LrDialogs.runOpenPanel {title='Choose the RAW folder for this shoot',canChooseFiles=false,canChooseDirectories=true,allowsMultipleSelection=false}
  if not rawRoot then prefs.bridgeBusy=false;return end

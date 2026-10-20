@@ -5,5 +5,5 @@ return {
  LrPluginName = 'Snappers Select',
  LrInitPlugin = 'Init.lua',
  LrLibraryMenuItems = {{title='Import client selection',file='ImportSelection.lua'}},
- VERSION = {major=1,minor=0,revision=0,build=1},
+ VERSION = {major=1,minor=0,revision=1,build=2},
 }
