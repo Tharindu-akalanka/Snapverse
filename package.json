@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:proofing": "node --test tests/selection.test.mjs tests/bridge.test.mjs && node tests/firebase-backend.mjs && node tests/drive-storage.mjs && node tests/lua-syntax.mjs && fengari tests/lightroom.lua"
+    "test:proofing": "node --test tests/selection.test.mjs tests/bridge.test.mjs && node tests/firebase-backend.mjs && node tests/drive-storage.mjs && node tests/retention.mjs && node tests/lua-syntax.mjs && fengari tests/lightroom.lua"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

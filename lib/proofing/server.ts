@@ -1,3 +1,4 @@
+import {cleanupDate,deleteExpiredPreview} from './retention';
 import {cert,getApps,initializeApp} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore,FieldValue} from 'firebase-admin/firestore';
@@ -41,6 +42,28 @@ export async function handleProofing(req:Request){try{return await handle(req);}
 async function handle(req:Request):Promise<Response>{
  const url=new URL(req.url),p=url.pathname.split('/').filter(Boolean).slice(2);
  if(req.method==='POST'&&req.headers.get('origin')&&req.headers.get('origin')!==url.origin)fail('Cross-origin request rejected',403);
+ if(p[0]==='cleanup'&&req.method==='GET'){
+ const secret=process.env.CRON_SECRET;
+ if(!secret||req.headers.get('authorization')!==`Bearer ${secret}`)fail('Unauthorized',401);
+ const env=await connectionEnv();if(storageProvider(env)!=='drive')fail('Drive connection required',503);
+ const now=new Date().toISOString(),db=database();
+ const due=await db.collection(collection).where('cleanupAt','<=',now).limit(10).get();
+ let completed=0,failed=0;const started=Date.now();
+ for(const doc of due.docs){
+ if(Date.now()-started>40000)break;
+ const ref=db.collection(collection).doc(doc.id);
+ const claimed=await db.runTransaction(async tx=>{const a=(await tx.get(ref)).data();
+ if(!a||a.status!=='submitted'||a.previewsClearedAt||!a.submitted||!a.cleanupAt||a.cleanupAt>now||cleanupDate(a.submitted)>now)return false;
+ tx.update(ref,{cleanupState:'processing'});return true;});
+ if(!claimed)continue;
+ try{const photos=await ref.collection('photos').get();let pending=false;
+ for(const photo of photos.docs){if(Date.now()-started>45000){pending=true;break;}const record=photo.data();if(record.previewClearedAt)continue;
+ await deleteExpiredPreview(env,doc.id,record);await ref.collection('photos').doc(photo.id).update({previewClearedAt:now});}
+ if(!pending){await ref.update({previewsClearedAt:now,cleanupState:'complete',cleanupAt:FieldValue.delete()});completed++;}
+ }catch{failed++;await ref.update({cleanupState:'retry'});}
+ }
+ return reply({completed,failed});
+ }
  const storageEnv=await connectionEnv();
  if(p[0]==='status')return reply({storage:storageProvider(storageEnv),driveConfigured:storageProvider(storageEnv)==='drive',driveAuthorizationReady:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET&&process.env.GOOGLE_REFRESH_TOKEN),emailConfigured:!!((process.env.RESEND_API_KEY&&process.env.PROOFING_EMAIL_FROM)||(process.env.GOOGLE_GMAIL_ENABLED==='true'&&process.env.GOOGLE_REFRESH_TOKEN))});
  if(p[0]==='drive-folder'&&req.method==='POST'){
@@ -65,9 +88,9 @@ async function handle(req:Request):Promise<Response>{
  const onlyOwner=()=>{if(!isOwner)fail('Studio administrator access required',403);};
  const photosRef=ref.collection('photos');const getPhotos=async()=>{const s=await photosRef.get();return s.docs.map(d=>d.data()).sort((x,y)=>x.relative.localeCompare(y.relative));};
  if(p.length===2&&req.method==='GET'){const ps=await selectionPhotos(ref,await getPhotos());return reply({album:plain(a,isOwner),isOwner,photos:ps.map(({key,provider,...p})=>p)});}
- if(p[2]==='photos'&&p[3]&&req.method==='GET'){const ps=await photosRef.doc(p[3]).get();if(!ps.exists)fail('Photo not found',404);return readPhoto(storageEnv,ps.data());}
+ if(p[2]==='photos'&&p[3]&&req.method==='GET'){const ps=await photosRef.doc(p[3]).get();if(!ps.exists)fail('Photo not found',404);if(ps.data()?.previewClearedAt)fail('Preview expired; selection details remain saved',410);return readPhoto(storageEnv,ps.data());}
  if(p[2]==='photos'&&req.method==='POST'){
- onlyOwner();if(a.status!=='draft')fail('Reopen the album before uploading',409);if(storageProvider(storageEnv)!=='drive')fail('Connect Google Drive before uploading previews',503);
+ onlyOwner();if(a.previewsClearedAt||a.cleanupState)fail('Previews expired; create a new album',409);if(a.status!=='draft')fail('Reopen the album before uploading',409);if(storageProvider(storageEnv)!=='drive')fail('Connect Google Drive before uploading previews',503);
  const form=await req.formData(),file=form.get('file');if(!(file instanceof File))fail('Choose a JPEG file');const name=cleanName(String(form.get('name')||file.name)),relative=cleanRelative(form.get('relative'),name);
  if(file.size<4||file.size>3*1024*1024)fail('Preview must be smaller than 3 MB',413);const data=await file.arrayBuffer(),sig=new Uint8Array(data);if(sig[0]!==255||sig[1]!==216||sig[2]!==255)fail('Choose a valid JPEG preview');
  // Deterministic path key prevents duplicate uploads even across simultaneous requests.
@@ -77,11 +100,11 @@ async function handle(req:Request):Promise<Response>{
  try{await db.runTransaction(async tx=>{const current=await tx.get(ref),existing=await tx.get(pref);if(current.data()?.status!=='draft')fail('Album changed while uploading',409);if(existing.exists)fail('This photo is already uploaded',409);if((current.data()?.total||0)>=10000)fail('An album can contain up to 10,000 previews');tx.create(pref,{id:pid,name,relative,...stored,bytes:file.size,selected:false,note:''});tx.update(ref,{total:FieldValue.increment(1)});});}catch(err){await deleteStored(storageEnv,stored);throw err;}return reply({id:pid},201);
  }
  if(p[2]==='publish'&&req.method==='POST'){onlyOwner();await db.runTransaction(async tx=>{const current=(await tx.get(ref)).data()!;if(current.status!=='draft')fail('Already shared',409);if(!current.total)fail('Upload previews before sharing');tx.update(ref,{status:'open'});});return reply({ok:true});}
- if(p[2]==='reopen'&&req.method==='POST'){onlyOwner();await ref.update({status:'draft',submitted:null});return reply({ok:true});}
+ if(p[2]==='reopen'&&req.method==='POST'){onlyOwner();await db.runTransaction(async tx=>{const current=(await tx.get(ref)).data()!;if(current.cleanupState||current.previewsClearedAt)fail('Preview cleanup has started. Create a new album for another selection.',409);tx.update(ref,{status:'draft',submitted:null,cleanupAt:FieldValue.delete()});});return reply({ok:true});}
  if(p[2]==='selection'&&req.method==='POST'){
  const b=await req.json();const ps=await getPhotos(),v=validateSelection(ps,b.ids,b.notes,a.max);if(b.submit&&!v.ids.length)fail('Select at least one photo');if(new TextEncoder().encode(JSON.stringify(v)).length>700000)fail('Editing notes are too long. Shorten some notes before saving.');
  // Keep one compact selection document, so thousands of photos do not exceed a transaction's write limit.
- const submission=new Date().toISOString();await db.runTransaction(async tx=>{const current=(await tx.get(ref)).data()!;if(current.status!=='open')fail('Album is closed. Refresh to view the final selection.',409);const currentValidated=validateSelection(ps,v.ids,v.notes,current.max);tx.set(ref.collection('private').doc('selection'),{ids:currentValidated.ids,notes:currentValidated.notes});tx.update(ref,{chosen:v.ids.length,...(b.submit?{status:'submitted',submitted:submission,notification:'Sending notification'}:{})});});
+ const submission=new Date().toISOString();await db.runTransaction(async tx=>{const current=(await tx.get(ref)).data()!;if(current.status!=='open')fail('Album is closed. Refresh to view the final selection.',409);const currentValidated=validateSelection(ps,v.ids,v.notes,current.max);tx.set(ref.collection('private').doc('selection'),{ids:currentValidated.ids,notes:currentValidated.notes});tx.update(ref,{chosen:v.ids.length,...(b.submit?{status:'submitted',submitted:submission,cleanupAt:cleanupDate(submission),notification:'Sending notification'}:{})});});
  if(b.submit){const n=await notify({...a,submitted:submission},v.ids.length);await ref.update({notification:n});}return reply({ok:true,submitted:!!b.submit});
  }
  if(p[2]==='notify'&&req.method==='POST'){onlyOwner();if(a.status!=='submitted')fail('No submitted selection');const notification=await notify(a,a.chosen);await ref.update({notification});return reply({notification});}
