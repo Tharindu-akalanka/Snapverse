@@ -16,6 +16,8 @@ const mobileNavItems = [
 export function MobileBottomNav() {
     const pathname = usePathname();
 
+    if (pathname.startsWith('/select')) return null;
+
     return (
         <nav
             aria-label="Mobile Navigation Bar"

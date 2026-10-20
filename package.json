@@ -6,12 +6,14 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:proofing": "node --test tests/selection.test.mjs tests/bridge.test.mjs && node tests/firebase-backend.mjs && node tests/drive-storage.mjs && node tests/lua-syntax.mjs && fengari tests/lightroom.lua"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.16.0",
+    "firebase-admin": "^13.6.0",
     "framer-motion": "^12.34.0",
     "lucide-react": "^0.564.0",
     "next": "16.1.6",
@@ -25,8 +27,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "fengari-node-cli": "^0.1.0",
+    "luaparse": "^0.3.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
